@@ -12,5 +12,8 @@ INFO = {
 		"pwd":"",
 		"host_portal":"portal.uestc.edu.cn",
 		"host_ea":"ea.uestc.edu.cn",
+		"ip_in":"ea.uestc.edu.cn",
+		"ip_out":"125.71.228.243",
+		"io":"in",
 		"del":False
 		}

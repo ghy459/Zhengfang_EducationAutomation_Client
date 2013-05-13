@@ -22,11 +22,15 @@ INFO = info.INFO
 
 class Student(object):
 	"""docstring for Student"""
-	def __init__(self, stuid, pwd) :
+	def __init__(self, stuid, pwd, io) :
 		super(Student, self).__init__()
 		global INFO
 		INFO['id'] = stuid
 		INFO['pwd'] = pwd
+		if io == "in" :
+			INFO['host_ea'] = INFO['ip_in']
+		else :
+			INFO['host_ea'] = INFO['ip_out']
 		self._LOGIN = Login(stuid,pwd)
 		self._LOGIN_TAG = self._LOGIN.get_login_tag()
 		self.is_login()
@@ -82,7 +86,7 @@ class Student(object):
 		url = 'http://'+INFO['host_ea']+'/default_zzjk.aspx'
 
 		self._HEADERS['Referer'] = 'http://portal.uestc.edu.cn/index.portal'
-		self._HEADERS['Host'] = INFO['host_ea']
+		self._HEADERS['Host'] = "ea.uestc.edu.cn"
 
 		req = request.Request(url,None,self._HEADERS,None,False,method='GET')
 		
@@ -110,6 +114,7 @@ class Student(object):
 
 		
 		resp = self._OPENER.open(req).read().decode('gb18030')
+		#print (self._CJ)
 
 		#print (resp)
 		#print (self._CJ)
@@ -120,7 +125,10 @@ class Student(object):
 		global INFO
 
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
-		self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xs_main_zzjk1.aspx'
+		#self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xs_main_zzjk1.aspx'
+		self._HEADERS['Referer'] = 'http://ea.uestc.edu.cn/xs_main_zzjk1.aspx'
+		self._HEADERS['Host'] = "ea.uestc.edu.cn"
+		
 
 		#req = request.Request(url,None,self._HEADERS,None,False,method='GET')
 		req = request.Request(url,None,self._HEADERS,None,False,method='GET')
@@ -129,6 +137,8 @@ class Student(object):
 
 		s = r'<input[^>]*name=\"__VIEWSTATE\"[^>]*value=\"([^"]*)\"[^>]*>'
 		self._VIEWSTATE = re.findall(s,resp)[0]
+
+		#print (self._VIEWSTATE)
 
 
 	def score_statistics(self) :
@@ -163,7 +173,7 @@ class Student(object):
 		zymc = (str((b.find_all(id='lbl_zymc')[0].string)).split('：'))
 		xzb = (str((b.find_all(id='lbl_xzb')[0].string)).split('：'))
 
-		f = open(filename,'w')
+		f = open(filename,'w',encoding='utf-8')
 		sys.stdout = f
 
 		print ("------------------------------------------------------------------")
@@ -259,7 +269,7 @@ class Student(object):
 		zymc = (str((b.find_all(id='lbl_zymc')[0].string)).split('：'))
 		xzb = (str((b.find_all(id='lbl_xzb')[0].string)).split('：'))
 		
-		f = open(filename,'w')
+		f = open(filename,'w',encoding='utf-8')
 		sys.stdout = f
 
 		print ("------------------------------------------------------------------")
@@ -357,7 +367,7 @@ class Student(object):
 		zymc = (str((b.find_all(id='lbl_zymc')[0].string)).split('：'))
 		xzb = (str((b.find_all(id='lbl_xzb')[0].string)).split('：'))
 		
-		f = open(filename,'w')
+		f = open(filename,'w',encoding='utf-8')
 		sys.stdout = f
 
 		print ("------------------------------------------------------------------")
@@ -430,7 +440,8 @@ class Student(object):
 		print ("正在查询\"历年成绩\"...")
 
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
-		self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xscjcx.aspx'
+		#self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xscjcx.aspx'
+		self._HEADERS['Referer'] = 'http://ea.uestc.edu.cn/xscjcx.aspx'
 
 		#self._POST_DATA['Button1'] = self.trans_to_gbk("课程最高成绩")
 		self._POST_DATA.update(btn_zcj=self.trans_to_gbk("历年成绩"))
@@ -572,7 +583,7 @@ class Student(object):
 		zymc = (str((b.find_all(id='lbl_zymc')[0].string)).split('：'))
 		xzb = (str((b.find_all(id='lbl_xzb')[0].string)).split('：'))
 		
-		f = open(filename,'w')
+		f = open(filename,'w',encoding='utf-8')
 		sys.stdout = f
 
 		print ("------------------------------------------------------------------")
@@ -690,7 +701,7 @@ class Student(object):
 		zymc = (str((b.find_all(id='lbl_zymc')[0].string)).split('：'))
 		xzb = (str((b.find_all(id='lbl_xzb')[0].string)).split('：'))
 		
-		f = open(filename,'w')
+		f = open(filename,'w',encoding='utf-8')
 		sys.stdout = f
 
 		print ("------------------------------------------------------------------")

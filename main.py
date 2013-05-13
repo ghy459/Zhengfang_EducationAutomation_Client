@@ -24,16 +24,16 @@ def usage() :
 
 	usage = "%prog [options] [ -o ] " 
 	parser = OptionParser(usage,version="教务系统快速查询客户端 v1.0")
-	parser.add_option("-o",action="store_true", dest="o",help="校外使用本软件需加上此参数")
-	parser.add_option("-d",action="store_true", dest="d",help="删除产生的成绩文件")
+	#parser.add_option("-o",action="store_true", dest="o",help="校外使用本软件需加上此参数")
+	parser.add_option("-d",action="store_true", dest="d",help="清理查询痕迹")
 	#parser.add_option("-c",action="store_true", dest="c",help="签到'config.ini'中的贴吧")
 	#parser.add_option("-i","--id",type="string",dest="id",help="学号")
 	#parser.add_option("-p","--pwd",type="string",dest="pwd",help="密码")
 
 	(options, args) = parser.parse_args()
 
-	if options.o == True :
-		pass
+	#if options.o == True :
+	#	INFO['io'] = "out" 
 	if options.d == True :
 		INFO['del'] = True
 	#INFO['id'] = options.id
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 	if INFO['pwd'] == "" :
 		INFO['pwd'] = input("请输入密码:")
 	print ()
-	stu = Student(INFO['id'],INFO['pwd'])
+	stu = Student(INFO['id'],INFO['pwd'],INFO['io'])
 
 	while (1) :
 

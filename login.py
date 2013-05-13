@@ -46,8 +46,9 @@ class Login(object):
 						"Accept": "Accept:text/html,application/xhtml+xml,image/gif,image/x-xbitmap,image/jpeg,image/pjpeg,application/x-shockwave-flash,application/xml;q=0.9,*/*;q=0.8",
 						"Accept-Charset":"GBK,utf-8;q=0.7,*;q=0.3",
 						"Accept-Language": "zh-CN,zh;q=0.8",
+						"Accept-Encoding": "gzip, deflate",
 						"Referer":"http://portal.uestc.edu.cn/index.portal",
-						"Host":INFO['host_portal'],
+						"Host":"portal.uestc.edu.cn",
 						"Content-Type": "application/x-www-form-urlencoded",
 						'User-agent':'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
 						"Connection": "Keep-Alive",
@@ -88,6 +89,8 @@ class Login(object):
 			#resp.info()['Set-cookie']
 		else :
 			self._LOGIN_TAG = False
+
+		#print (self._CJ)
 		
 
 
