@@ -1,3 +1,12 @@
+'''
+Created on 2013-5-11
+
+@author: ghy459
+
+@my blog: http://hack0nair.me
+'''
+
+
 INFO = {
 		"id":"",
 		"pwd":"",

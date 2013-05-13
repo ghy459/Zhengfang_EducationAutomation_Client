@@ -1,3 +1,13 @@
+'''
+Created on 2013-5-11
+
+@author: ghy459
+
+@my blog: http://hack0nair.me
+'''
+
+
+
 from urllib import request
 from urllib import parse
 from http import cookiejar,cookies
