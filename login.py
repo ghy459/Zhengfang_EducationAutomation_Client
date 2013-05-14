@@ -1,3 +1,6 @@
+#!/usr/bin/python  
+# -*- coding: utf-8 -*- 
+
 '''
 Created on 2013-5-11
 
@@ -7,35 +10,62 @@ Created on 2013-5-11
 
 '''
 
-
-
 from urllib import request
 from urllib import parse
-from http import cookiejar,cookies
+from http import cookiejar,cookies,client
 
 import info
 import re
+import socket
 
 INFO = info.INFO
 
+
+def my_host(host) :
+	
+	if INFO['io'] == 'in' :
+		if host == 'portal.uestc.edu.cn' :
+			return '222.197.164.72'
+		else :
+			return '222.197.164.82'
+	else :
+		if host == 'portal.uestc.edu.cn' :
+			return '125.71.228.241'
+		else :
+			return '125.71.228.243'
+
+class MyHTTPConnection(client.HTTPConnection):
+
+	def connect(self):
+		self.sock = socket.create_connection((my_host(self.host),self.port),self.timeout)
+
+
+class MyHTTPHandler(request.HTTPHandler):
+	
+	def http_open(self,req):
+		return self.do_open(MyHTTPConnection,req)
+
+
 class SimpleCookieHandler(request.BaseHandler):
-    def http_request(self, req):
-        simple_cookie = 'LAST_PORTAL_PAGE=p346'
-        if not req.has_header('Cookie'):
-            req.add_unredirected_header('Cookie', simple_cookie)
-        else:
-            cookie = req.get_header('Cookie')
-            req.add_unredirected_header('Cookie', simple_cookie + '; ' + cookie)
-        return req
+
+	def http_request(self, req):
+		simple_cookie = 'LAST_PORTAL_PAGE=p346'
+		if not req.has_header('Cookie'):
+			req.add_unredirected_header('Cookie', simple_cookie)
+		else:
+			cookie = req.get_header('Cookie')
+			req.add_unredirected_header('Cookie', simple_cookie + '; ' + cookie)
+		return req
 
 
 class Login(object):
 	"""docstring for Login"""
-	def __init__(self,stuid,pwd):
+	def __init__(self,stuid,pwd,io):
 		super(Login, self).__init__()
 		global INFO
 		INFO['id'] = stuid
 		INFO['pwd'] = pwd
+		INFO['io'] = io
 		self._LOGIN_DATA = {
 							"Login.Token1":INFO['id'],
 							"Login.Token2":INFO['pwd'],
@@ -56,25 +86,16 @@ class Login(object):
 						}
 
 		self._CJ = cookiejar.CookieJar()
-		self._OPENER = request.build_opener(request.HTTPCookieProcessor(self._CJ),SimpleCookieHandler())
+		self._OPENER = request.build_opener(request.HTTPCookieProcessor(self._CJ),SimpleCookieHandler(),MyHTTPHandler())
 		request.install_opener(self._OPENER)
 		self._LOGIN_TAG = False
 		self._URL = 'http://'+INFO['host_portal']+'/userPasswordValidate.portal'
-		self.login()
-		
+		try:
+			self.login()
+		except:
+			print ("当前网络不稳定，请稍后再试！")
+			exit(1)
 
-	def ban_refresh(self) :
-
-		print ("等待\'5秒防刷\'!")
-		time.sleep(6)
-
-	def get_viewstate(self,url) :
-		
-		resp = self._OPENER.open(url).read().decode('gb2312')
-		s = r'<input[^>]*name=\"__VIEWSTATE\"[^>]*value=\"([^"]*)\"[^>]*>'
-		t = re.findall(s,resp)[0]
-		self._LOGIN_DATA.update(__VIEWSTATE=t)
-		
 
 	def login(self) :
 
@@ -89,9 +110,6 @@ class Login(object):
 			#resp.info()['Set-cookie']
 		else :
 			self._LOGIN_TAG = False
-
-		#print (self._CJ)
-		
 
 
 	def get_login_tag(self) :

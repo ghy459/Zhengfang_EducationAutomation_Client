@@ -1,3 +1,6 @@
+#!/usr/bin/python  
+# -*- coding: utf-8 -*- 
+
 '''
 Created on 2013-5-11
 
@@ -6,16 +9,13 @@ Created on 2013-5-11
 @my blog: http://hack0nair.me
 '''
 
-
-
 from urllib import request
 from urllib import parse
 from http import cookiejar,cookies
 from bs4 import BeautifulSoup
-
 import re,sys,time,os,subprocess
-import info
 
+import info
 from login import Login
 
 INFO = info.INFO
@@ -27,17 +27,13 @@ class Student(object):
 		global INFO
 		INFO['id'] = stuid
 		INFO['pwd'] = pwd
-		if io == "in" :
-			INFO['host_ea'] = INFO['ip_in']
-		else :
-			INFO['host_ea'] = INFO['ip_out']
-		self._LOGIN = Login(stuid,pwd)
+
+		self._LOGIN = Login(stuid,pwd,io)
 		self._LOGIN_TAG = self._LOGIN.get_login_tag()
 		self.is_login()
 
 		self._HEADERS = self._LOGIN._HEADERS
 		self._OPENER = self._LOGIN._OPENER
-		self._CJ = self._LOGIN._CJ
 
 		self._VIEWSTATE = ""
 		self._POST_DATA = {
@@ -48,9 +44,18 @@ class Student(object):
 							"__VIEWSTATE":""
 						}
 
-		self.make_dir()
-		self.get_SessionID()
-		self.get_viewstate()
+		try:
+			self.make_dir()
+		except:
+			print ("权限不足，当前目录不允许创建文件夹！")
+			exit(1)
+		try:
+			self.get_SessionID()
+			self.get_viewstate()
+		except:
+			print ("当前网络不稳定，请稍后再试！")
+			exit(1)
+		
 
 
 	def is_login(self) :
@@ -84,40 +89,10 @@ class Student(object):
 		global INFO
 
 		url = 'http://'+INFO['host_ea']+'/default_zzjk.aspx'
-
 		self._HEADERS['Referer'] = 'http://portal.uestc.edu.cn/index.portal'
 		self._HEADERS['Host'] = "ea.uestc.edu.cn"
-
 		req = request.Request(url,None,self._HEADERS,None,False,method='GET')
-		
-		#simple_cookie = 'LAST_PORTAL_PAGE=p346'
-
-		'''
-		c = cookies.SimpleCookie()
-		c['LAST_PORTAL_PAGE'] = 'p346'
-		c['LAST_PORTAL_PAGE']['path'] = '/'
-		c['LAST_PORTAL_PAGE']['domain'] = '.uestc.edu.cn'
-		'''
-		
-		#self._CJ.set_cookie(c)
-
-		#pre_url = 'http://'+INFO['host_ea']+'/xs_main_zzjk.aspx'
-
-		
-		
-		#pre_url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
-		#pre_url1= 'http://ea.uestc.edu.cn//default_zzjk.aspx'
-		#self.ban_refresh()
-		#req = request.Request(pre_url1,None,self._HEADERS,None,False,method='GET')
-		#resp = self._OPENER.open(req).read().decode('gb18030')
-		#self.ban_refresh()
-
-		
 		resp = self._OPENER.open(req).read().decode('gb18030')
-		#print (self._CJ)
-
-		#print (resp)
-		#print (self._CJ)
 		
 
 	def get_viewstate(self) :
@@ -125,20 +100,11 @@ class Student(object):
 		global INFO
 
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
-		#self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xs_main_zzjk1.aspx'
 		self._HEADERS['Referer'] = 'http://ea.uestc.edu.cn/xs_main_zzjk1.aspx'
-		self._HEADERS['Host'] = "ea.uestc.edu.cn"
-		
-
-		#req = request.Request(url,None,self._HEADERS,None,False,method='GET')
 		req = request.Request(url,None,self._HEADERS,None,False,method='GET')
-
 		resp = self._OPENER.open(req).read().decode('gb18030')
-
 		s = r'<input[^>]*name=\"__VIEWSTATE\"[^>]*value=\"([^"]*)\"[^>]*>'
 		self._VIEWSTATE = re.findall(s,resp)[0]
-
-		#print (self._VIEWSTATE)
 
 
 	def score_statistics(self) :
@@ -146,16 +112,11 @@ class Student(object):
 		global INFO
 
 		filename = "成绩统计.txt"
-
 		print ("正在查询\"成绩统计\"...")
-
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
 		self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xscjcx.aspx'
-
-		#self._POST_DATA['Button1'] = self.trans_to_gbk("成绩统计")
 		self._POST_DATA.update(Button1=self.trans_to_gbk("成绩统计"))
 		self._POST_DATA['__VIEWSTATE'] = self._VIEWSTATE
-
 		postdata = parse.urlencode(self._POST_DATA)
 		postdata = postdata.encode('gb2312')
 		req = request.Request(url,postdata,self._HEADERS)
@@ -163,7 +124,6 @@ class Student(object):
 		msg = resp.read().decode('gb18030')
 
 		soup = BeautifulSoup(msg,from_encoding='gb18030')
-
 		b = soup.find_all('table',"formlist")[0]
 
 		xh= (str((b.find_all(id='lbl_xh')[0].string)).split('：'))
@@ -245,8 +205,6 @@ class Student(object):
 
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
 		self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xscjcx.aspx'
-
-		#self._POST_DATA['Button1'] = self.trans_to_gbk("课程最高成绩")
 		self._POST_DATA.update(btn_zg=self.trans_to_gbk("课程最高成绩"))
 		self._POST_DATA['__VIEWSTATE'] = self._VIEWSTATE
 
@@ -256,8 +214,6 @@ class Student(object):
 		resp = self._OPENER.open(req)
 		msg = resp.read().decode('gb18030')
 
-		#print (msg)
-		
 		soup = BeautifulSoup(msg,from_encoding='gb18030')
 		
 		b = soup.find_all('table',"formlist")[0]
@@ -338,13 +294,10 @@ class Student(object):
 		global INFO
 
 		filename = "未通过成绩.txt"
-
 		print ("正在查询\"未通过成绩\"...")
 
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
 		self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xscjcx.aspx'
-
-		#self._POST_DATA['Button1'] = self.trans_to_gbk("课程最高成绩")
 		self._POST_DATA.update(Button2=self.trans_to_gbk("未通过成绩"))
 		self._POST_DATA['__VIEWSTATE'] = self._VIEWSTATE
 
@@ -354,8 +307,6 @@ class Student(object):
 		resp = self._OPENER.open(req)
 		msg = resp.read().decode('gb18030')
 
-		#print (msg)
-		
 		soup = BeautifulSoup(msg,from_encoding='gb18030')
 		
 		b = soup.find_all('table',"formlist")[0]
@@ -436,14 +387,9 @@ class Student(object):
 		global INFO
 
 		filename = "历年成绩.txt"
-
 		print ("正在查询\"历年成绩\"...")
-
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
-		#self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xscjcx.aspx'
 		self._HEADERS['Referer'] = 'http://ea.uestc.edu.cn/xscjcx.aspx'
-
-		#self._POST_DATA['Button1'] = self.trans_to_gbk("课程最高成绩")
 		self._POST_DATA.update(btn_zcj=self.trans_to_gbk("历年成绩"))
 		self._POST_DATA['__VIEWSTATE'] = self._VIEWSTATE
 
@@ -452,8 +398,7 @@ class Student(object):
 		req = request.Request(url,postdata,self._HEADERS)
 		resp = self._OPENER.open(req)
 		msg = resp.read().decode('gb18030')
-
-		
+	
 		soup = BeautifulSoup(msg,from_encoding='gb18030')
 		
 		b = soup.find_all('table',"formlist")[0]
@@ -555,12 +500,9 @@ class Student(object):
 		global INFO
 
 		filename = year+"学年第"+term+"学期成绩.txt"
-
 		print ("正在查询\""+year+"学年第"+term+"学期成绩.txt"+"\"...")
-
 		url = 'http://'+INFO['host_ea']+'/xscjcx.aspx?xh='+INFO['id']+'&xm=&gnmkdm=N121605'
 		self._HEADERS['Referer'] = 'http://'+INFO['host_ea']+'/xscjcx.aspx'
-
 		self._POST_DATA['ddlXN'] = year
 		self._POST_DATA['ddlXQ'] = term
 		self._POST_DATA.update(btn_xq=self.trans_to_gbk("学期成绩"))

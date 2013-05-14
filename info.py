@@ -1,3 +1,6 @@
+#!/usr/bin/python  
+# -*- coding: utf-8 -*- 
+
 '''
 Created on 2013-5-11
 
@@ -6,14 +9,11 @@ Created on 2013-5-11
 @my blog: http://hack0nair.me
 '''
 
-
 INFO = {
 		"id":"",
 		"pwd":"",
 		"host_portal":"portal.uestc.edu.cn",
 		"host_ea":"ea.uestc.edu.cn",
-		"ip_in":"ea.uestc.edu.cn",
-		"ip_out":"125.71.228.243",
 		"io":"in",
 		"del":False
 		}

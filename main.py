@@ -11,9 +11,7 @@ Created on 2013-5-11
 
 from optparse import OptionParser
 from student import Student
-import os
-
-import info
+import os,info
 
 INFO = info.INFO
 
@@ -22,37 +20,37 @@ def usage() :
 	
 	global INFO
 
-	usage = "%prog [options] [ -o ] " 
-	parser = OptionParser(usage,version="教务系统快速查询客户端 v1.0")
-	#parser.add_option("-o",action="store_true", dest="o",help="校外使用本软件需加上此参数")
+	usage = "%prog [options] [ -o -i ] [ -d ] " 
+	parser = OptionParser(usage,version="教务系统快速查询客户端 v1.2")
+	parser.add_option("-o",action="store_true", dest="o",help="校外访问")
+	parser.add_option("-i",action="store_true", dest="i",help="校内访问")
 	parser.add_option("-d",action="store_true", dest="d",help="清理查询痕迹")
-	#parser.add_option("-c",action="store_true", dest="c",help="签到'config.ini'中的贴吧")
-	#parser.add_option("-i","--id",type="string",dest="id",help="学号")
-	#parser.add_option("-p","--pwd",type="string",dest="pwd",help="密码")
 
 	(options, args) = parser.parse_args()
 
-	#if options.o == True :
-	#	INFO['io'] = "out" 
+	if options.o == True :
+		INFO['io'] = "out"
+	if options.i == True :
+		INFO['io'] = "in"
 	if options.d == True :
 		INFO['del'] = True
-	#INFO['id'] = options.id
-	#INFO['pwd'] = options.pwd
 
 
 def del_file() :
 
 	filelist = os.listdir(os.getcwd())
 	path = os.path.dirname(os.getcwd())
-	for f in filelist :
-		os.remove(f)
-	os.chdir(path)
-	os.rmdir(INFO['id'])
+	try:
+		for f in filelist :
+			os.remove(f)
+		os.chdir(path)
+		os.rmdir(INFO['id'])
+	except:
+		print ("文件删除出错！")
+		exit(1)
 
 
 if __name__ == '__main__':
-	
-	#global INFO
 
 	print ("\n欢迎使用教务系统快速查询客户端，程序正在启动中...")
 	usage()
@@ -79,27 +77,27 @@ if __name__ == '__main__':
 		print ()
 		op = input("请输入命令:")
 
-		if op == '1' :
-			year = input("请输入学年（格式： 2012-2013 ）：")
-			term = input("请输入学期（格式： 1 ）：")
-			stu.term_score(year,term)
-		if op == '2' :
-			year = input("请输入学年（格式： 2012-2013 ）：")
-			stu.year_score(year)
-		if op == '3' :
-			stu.all_score()
-		if op == '4' :
-			stu.best_score()
-		if op == '5' :
-			stu.failed_score()
-		if op == '6' :
-			stu.score_statistics()
-		if op == '7' :
-			if INFO['del'] == True :
-				del_file()
-			print ("程序正常退出！")
-			exit(0)
-
-		
-		
-		
+		try:
+			if op == '1' :
+				year = input("请输入学年（格式： 2012-2013 ）：")
+				term = input("请输入学期（格式： 1 ）：")
+				stu.term_score(year,term)
+			if op == '2' :
+				year = input("请输入学年（格式： 2012-2013 ）：")
+				stu.year_score(year)
+			if op == '3' :
+				stu.all_score()
+			if op == '4' :
+				stu.best_score()
+			if op == '5' :
+				stu.failed_score()
+			if op == '6' :
+				stu.score_statistics()
+			if op == '7' :
+				if INFO['del'] == True :
+					del_file()
+				print ("程序正常退出！")
+				exit(0)
+		except:
+			print ("当前网络不稳定，请重试！")
+			continue
